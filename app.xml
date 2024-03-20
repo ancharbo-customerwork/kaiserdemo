@@ -1,0 +1,26 @@
+# Retrieve JSON output
+$jsonOutput = az webapp deployment list-publishing-profiles --name <app-name> --resource-group <resource-group-name> --query "[?publishMethod=='MSDeploy']" --output json | ConvertFrom-Json
+
+# Build XML structure
+$xmlOutput = [xml]@"
+<?xml version="1.0"?>
+<publishData>
+  <publishProfile
+    profileName="$($jsonOutput.profileName)"
+    publishMethod="$($jsonOutput.publishMethod)"
+    publishUrl="$($jsonOutput.publishUrl)"
+    msdeploySite="$($jsonOutput.msdeploySite)"
+    userName="$($jsonOutput.userName)"
+    userPWD="$($jsonOutput.userPWD)"
+    destinationAppUrl="$($jsonOutput.destinationAppUrl)"
+    SQLServerDBConnectionString="$($jsonOutput.SQLServerDBConnectionString)"
+    mySQLDBConnectionString="$($jsonOutput.mySQLDBConnectionString)"
+    hostingProviderForumLink="$($jsonOutput.hostingProviderForumLink)"
+    controlPanelLink="$($jsonOutput.controlPanelLink)"
+    kuduUrl="https://$($jsonOutput.name).scm.azurewebsites.net/"
+  />
+</publishData>
+"@
+
+# Save XML to file
+$xmlOutput.Save("publish_profile.xml")
